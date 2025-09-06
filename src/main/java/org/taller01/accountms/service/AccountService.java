@@ -15,18 +15,18 @@ import java.util.Optional;
 @AllArgsConstructor
 public class AccountService {
 
-    private AccountRepository accountRepository;
+  private AccountRepository accountRepository;
 
-    @Transactional(readOnly = true)
-    public List<Account> listAll() {
-        return accountRepository.findAll();
-    }
+  @Transactional(readOnly = true)
+  public List<Account> listAll() {
+    return accountRepository.findAll();
+  }
 
-    @Transactional(readOnly = true)
-    public Account getById(String accountId) {
-        return accountRepository.findById(accountId)
-                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
-    }
+  @Transactional(readOnly = true)
+  public Account getById(String accountId) {
+    return accountRepository.findById(accountId)
+        .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+  }
 
 }
 

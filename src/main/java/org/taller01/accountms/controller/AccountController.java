@@ -16,12 +16,11 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class AccountController {
 
-    private final AccountService accountService;
+  private final AccountService accountService;
 
-    @GetMapping
-    public ResponseEntity<List<AccountResponse>> list() {
-        return ResponseEntity.ok(
-                accountService.listAll().stream().map(AccountResponse::from).collect(Collectors.toList())
-        );
-    }
+  @GetMapping
+  public ResponseEntity<List<AccountResponse>> list() {
+    return ResponseEntity.ok(
+        accountService.listAll().stream().map(AccountResponse::from).collect(Collectors.toList()));
+  }
 }

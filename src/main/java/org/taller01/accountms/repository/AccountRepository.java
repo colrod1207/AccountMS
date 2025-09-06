@@ -9,7 +9,9 @@ import java.util.Optional;
 
 @Repository
 public interface AccountRepository extends MongoRepository<Account, String> {
-    Optional<Account> findByAccountNumber(String accountNumber);
-    boolean existsByAccountNumber(String accountNumber);
-    List<Account> findByClientId(String clientId);
+  Optional<Account> findByAccountNumber(String accountNumber);
+
+  boolean existsByAccountNumber(String accountNumber);
+
+  List<Account> findByClientId(String clientId);
 }
