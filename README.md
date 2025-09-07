@@ -1,42 +1,103 @@
-## 📊 Project Status
+# 🏦 AccountMS – Microservicio de Cuentas
 
-![Java](https://img.shields.io/badge/java-17-blue)
-![OpenAPI](https://img.shields.io/badge/docs-Swagger-blue?logo=swagger)
-<!-- ![License](https://img.shields.io/github/license/colrod1207/AccountMS)
-![Build](https://img.shields.io/github/actions/workflow/status/colrod1207/AccountMS/maven.yml)
-![Coverage](https://img.shields.io/codecov/c/github/colrod1207/AccountMS) -->
+Este microservicio gestiona operaciones CRUD sobre cuentas bancarias y mantiene el saldo disponible, siguiendo una arquitectura contract-first basada en OpenAPI. Está construido con Spring Boot, MongoDB y herramientas de calidad integradas para asegurar consistencia y mantenibilidad. Soporta programación reactiva con Spring WebFlux.
 
-## 📐 Code Formatting with Maven
-This project uses the formatter-maven-plugin to automatically format source code and resource files according to the Google Java Style Guide.
+---
 
-### ✅ What it formats
+## 🏷️ Badges
 
-- Java source files (.java)
+![Java](https://img.shields.io/badge/language-Java%2017-blue)
+![Build](https://github.com/natalygiron/AccountMS/actions/workflows/maven.yml/badge.svg)
+[![Swagger](https://img.shields.io/badge/docs-Swagger-blue?logo=swagger)](http://localhost:8081/swagger-ui/index.html)
+<!-- ![License](https://img.shields.io/github/license/natalygiron/AccountMS) -->
+---
 
-- XML configuration files (.xml)
+## 📘 API Endpoints
 
-- JSON data files (.json)
+| Método | Endpoint           | Descripción                          |
+|--------|--------------------|--------------------------------------|
+| POST   | `/accounts`        | Registrar nueva cuenta               |
+| GET    | `/accounts`        | Listar todas las cuentas             |
+| GET    | `/accounts/{id}`   | Obtener cuenta por ID                |
+| PUT    | `/accounts/{id}`   | Actualizar cuenta por ID             |
+| PATCH  | `/accounts/{id}`   | Actualizar parcialmente una cuenta   |
+| DELETE | `/accounts/{id}`   | Eliminar cuenta por ID               |
 
-- YAML files (.yaml, .yml)
+📎 Documentación interactiva: [Swagger UI](http://localhost:8081/swagger-ui/index.html)
 
-### 🔧 How to apply formatting
+---
 
-- To format all supported files:
+## 🧪 Checklist de calidad
 
-```bash
-mvn formatter:format
+Antes de hacer commit o crear un pull request:
+
+- [x] Código formateado (`mvn formatter:format`)
+- [x] Reglas de estilo validadas (`mvn checkstyle:check`)
+- [x] Pruebas ejecutadas (`mvn test`)
+- [x] Cobertura generada (`mvn jacoco:report`)
+- [x] Documentación actualizada (`account-ms-openapi.yaml`)
+- [x] Commit claro y descriptivo
+- [x] Pull request creado (no push directo a `main`)
+
+---
+
+## 📥 Pull Request Template
+
+> Este repositorio requiere que todos los cambios pasen por revisión vía Pull Request.
+
+```markdown
+# 📦 Pull Request – AccountMS
+
+## ✅ Descripción del cambio
+<!-- Explica brevemente qué se implementa o corrige -->
+
+## 🔍 Checklist de calidad
+- [ ] Código formateado (`mvn formatter:format`)
+- [ ] Reglas de estilo validadas (`mvn checkstyle:check`)
+- [ ] Pruebas ejecutadas (`mvn test`)
+- [ ] Cobertura generada (`mvn jacoco:report`)
+- [ ] Documentación actualizada (`account-ms-openapi.yaml`)
+- [ ] Commit claro y descriptivo
+- [ ] Rama actualizada con `main`
+- [ ] Revisión solicitada
+
+## 📎 Referencias
+<!-- Enlace a ticket, historia de usuario o documentación relacionada -->
+
+## 👥 Revisor(es) sugerido(s)
+<!-- Menciona a quien debería revisar este PR -->
 ```
-
-- To validate formatting (useful before committing):
-
-```bash
-mvn formatter:validate
+---
+## 📦 Estructura del proyecto
+```código
+account-ms/
+├── src/
+│   ├── main/
+│   │   ├── java/com/bootcamp/accountms/
+│   │   │   ├── controller/
+│   │   │   ├── dto/request/
+│   │   │   ├── dto/response/
+│   │   │   ├── domain/
+│   │   │   ├── service/
+│   │   │   └── api/
+│   │   └── resources/
+│   │       ├── application.yml
+│   │       ├── checkstyle.xml
+│   │       └── openapi/account-ms-openapi.yaml
+├── pom.xml
+└── .github/workflows/maven.yml
 ```
+---
 
-> The plugin is configured to run automatically during the validate phase of the Maven lifecycle. This means formatting will be applied when running commands like mvn install, mvn verify, or mvn package.
+## 🚨 Errores estándar de la API
 
-### 📁 Style configuration
-The formatting rules are defined in the file:
-```Código
-eclipse-java-google-style.xml
+| Código | Tipo de error           | Descripción breve                           | Recomendación para el cliente       |
+|----|-------------------------|---------------------------------------------|-------------------------------------|
+| 400 | Bad Request             | Datos inválidos o faltantes en la solicitud | Verifica campos requeridos y formato |
+| 404 | Not Found               | Cuenta no encontrado por ID                 | Asegúrate de que el ID exista       |
+| 422 | Unprocessable Entity    | Datos válidos pero no procesables           | Revisa reglas de negocio            |
+| 500 | Internal Server Error   | Error inesperado en el servidor             | Intenta nuevamente o contacta soporte |
+
+📎 Todos los errores deben incluir un cuerpo JSON con estructura clara:
+
 ```
