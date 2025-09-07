@@ -1,65 +1,71 @@
 // src/main/java/org/taller01/accountms/config/GlobalExceptionHandler.java
 package org.taller01.accountms.exception;
 
-import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.support.WebExchangeBindException;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.ServerWebInputException;
+import org.taller01.accountms.exception.ApiError;
+import org.taller01.accountms.exception.ResourceNotFoundException;
+
 import java.time.Instant;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.springframework.dao.DuplicateKeyException;
-import org.springframework.http.*;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-import org.taller01.accountms.exception.ApiError;
-import org.taller01.accountms.exception.ResourceNotFoundException;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    private ResponseEntity<ApiError> build(HttpStatus status, String msg, HttpServletRequest req, Map<String,String> fields) {
-        return ResponseEntity.status(status).body(
-                ApiError.builder()
-                        .timestamp(Instant.now())
-                        .status(status.value())
-                        .error(status.is4xxClientError() ? "Solicitud incorrecta" : "Error del servidor")
-                        .message(msg)
-                        .path(req.getRequestURI())
-                        .fieldErrors(fields)
-                        .build()
-        );
+    private ResponseEntity<ApiError> build(HttpStatus status, String message,
+                                           ServerWebExchange exchange, Map<String,String> fields) {
+        String path = exchange.getRequest().getPath().value();
+        String error = status.is4xxClientError() ? "Solicitud incorrecta" : "Error del servidor";
+        ApiError body = ApiError.builder()
+                .timestamp(Instant.now())
+                .status(status.value())
+                .error(error)
+                .message(message)
+                .path(path)
+                .fieldErrors(fields)
+                .build();
+        return ResponseEntity.status(status).body(body);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiError> notFound(ResourceNotFoundException ex, HttpServletRequest req) {
-        return build(HttpStatus.NOT_FOUND, ex.getMessage(), req, null);
+    public ResponseEntity<ApiError> notFound(ResourceNotFoundException ex, ServerWebExchange exchange) {
+        return build(HttpStatus.NOT_FOUND, ex.getMessage(), exchange, null);
     }
 
     @ExceptionHandler(ResponseStatusException.class)
-    public ResponseEntity<ApiError> status(ResponseStatusException ex, HttpServletRequest req) {
+    public ResponseEntity<ApiError> status(ResponseStatusException ex, ServerWebExchange exchange) {
         HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());
-        return build(status, ex.getReason(), req, null);
+        return build(status, ex.getReason(), exchange, null);
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiError> beanValidation(MethodArgumentNotValidException ex, HttpServletRequest req) {
-        Map<String,String> fields = ex.getBindingResult().getFieldErrors()
-                .stream().collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage, (a,b)->a));
-        return build(HttpStatus.BAD_REQUEST, "Hay errores de validación en el cuerpo enviado", req, fields);
+    @ExceptionHandler(WebExchangeBindException.class)
+    public ResponseEntity<ApiError> beanValidation(WebExchangeBindException ex, ServerWebExchange exchange) {
+        Map<String,String> fields = ex.getFieldErrors().stream()
+                .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage, (a,b)->a));
+        return build(HttpStatus.BAD_REQUEST, "Hay errores de validación en el cuerpo enviado", exchange, fields);
     }
 
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ApiError> badJson(HttpMessageNotReadableException ex, HttpServletRequest req) {
-        return build(HttpStatus.BAD_REQUEST, "JSON inválido o campos con formato incorrecto", req, null);
+    @ExceptionHandler(ServerWebInputException.class)
+    public ResponseEntity<ApiError> badInput(ServerWebInputException ex, ServerWebExchange exchange) {
+        return build(HttpStatus.BAD_REQUEST, "JSON inválido o campos con formato incorrecto", exchange, null);
     }
 
     @ExceptionHandler(DuplicateKeyException.class)
-    public ResponseEntity<ApiError> duplicate(DuplicateKeyException ex, HttpServletRequest req) {
-        return build(HttpStatus.CONFLICT, "El número de cuenta ya existe", req, null);
+    public ResponseEntity<ApiError> duplicate(DuplicateKeyException ex, ServerWebExchange exchange) {
+        return build(HttpStatus.CONFLICT, "El número de cuenta ya existe", exchange, null);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiError> unexpected(Exception ex, HttpServletRequest req) {
-        return build(HttpStatus.INTERNAL_SERVER_ERROR, "Ocurrió un error inesperado", req, null);
+    public ResponseEntity<ApiError> unexpected(Exception ex, ServerWebExchange exchange) {
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, "Ocurrió un error inesperado", exchange, null);
     }
 }

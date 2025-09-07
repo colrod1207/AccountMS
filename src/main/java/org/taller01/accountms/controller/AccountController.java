@@ -1,75 +1,65 @@
-// src/main/java/org/taller01/accountms/controller/AccountController.java
 package org.taller01.accountms.controller;
 
 import jakarta.validation.Valid;
 import java.net.URI;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.taller01.accountms.domain.Account;
 import org.taller01.accountms.dto.request.CreateAccountRequest;
 import org.taller01.accountms.dto.request.UpdateAccountRequest;
 import org.taller01.accountms.dto.response.AccountResponse;
 import org.taller01.accountms.service.AccountService;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/cuentas")
 public class AccountController {
 
-  private final AccountService accountService;
+  private final AccountService service;
 
   /** POST /cuentas — crea cuenta (accountType: SAVINGS | CHECKING) */
   @PostMapping
-  public ResponseEntity<AccountResponse> crear(@Valid @RequestBody CreateAccountRequest req) {
-    Account creada = accountService.create(req);
-    return ResponseEntity
-            .created(URI.create("/cuentas/" + creada.getId()))
-            .body(AccountResponse.from(creada));
+  public Mono<ResponseEntity<AccountResponse>> crear(@Valid @RequestBody CreateAccountRequest req) {
+    return service.create(req)
+            .map(AccountResponse::from)
+            .map(a -> ResponseEntity.created(URI.create("/cuentas/" + a.getId())).body(a));
   }
 
-  /** GET /cuentas — listar todas las cuentas */
+  /** GET /cuentas — listar todas */
   @GetMapping
-  public ResponseEntity<List<AccountResponse>> listar() {
-    var out = accountService.listAll()
-            .stream().map(AccountResponse::from).toList();
-    return ResponseEntity.ok(out);
+  public Flux<AccountResponse> listar() {
+    return service.listAll().map(AccountResponse::from);
   }
 
-  /** GET /cuentas/{id} — obtener una cuenta por ID */
+  /** GET /cuentas/{id} — obtener por ID */
   @GetMapping("/{id}")
-  public ResponseEntity<AccountResponse> obtener(@PathVariable String id) {
-    return ResponseEntity.ok(AccountResponse.from(accountService.getById(id)));
+  public Mono<AccountResponse> obtener(@PathVariable String id) {
+    return service.getById(id).map(AccountResponse::from);
   }
 
-  /** GET /cuentas/cliente/{clientId} — listar cuentas por dueño (clientId) */
+  /** GET /cuentas/cliente/{clientId} — listar por cliente (valida en ClientMS) */
   @GetMapping("/cliente/{clientId}")
-  public ResponseEntity<List<AccountResponse>> listarPorCliente(@PathVariable String clientId) {
-    var out = accountService.listByClientId(clientId)
-            .stream().map(AccountResponse::from).toList();
-    return ResponseEntity.ok(out); // devuelve [] si no hay cuentas
+  public Flux<AccountResponse> listarPorCliente(@PathVariable String clientId) {
+    return service.listByClientId(clientId).map(AccountResponse::from);
   }
 
-  /** PUT /cuentas/{id} — actualizar estado (ej. active) */
+  /** PUT /cuentas/{id} — actualizar 'active' (obligatorio) */
   @PutMapping("/{id}")
-  public ResponseEntity<AccountResponse> actualizar(@PathVariable String id,
-                                                    @Valid @RequestBody UpdateAccountRequest req) {
-    Account actualizada = accountService.updatePut(id, req);
-    return ResponseEntity.ok(AccountResponse.from(actualizada));
+  public Mono<AccountResponse> actualizar(@PathVariable String id, @Valid @RequestBody UpdateAccountRequest req) {
+    return service.updatePut(id, req).map(AccountResponse::from);
   }
 
-  /** PATCH /cuentas/{id} — actualización parcial */
+  /** PATCH /cuentas/{id} — actualización parcial (active opcional) */
   @PatchMapping("/{id}")
-  public ResponseEntity<AccountResponse> actualizarParcial(@PathVariable String id,
-                                                           @RequestBody UpdateAccountRequest req) {
-    Account actualizada = accountService.updatePatch(id, req);
-    return ResponseEntity.ok(AccountResponse.from(actualizada));
+  public Mono<AccountResponse> actualizarParcial(@PathVariable String id, @RequestBody UpdateAccountRequest req) {
+    return service.updatePatch(id, req).map(AccountResponse::from);
   }
 
-  /** DELETE /cuentas/{id} — eliminar cuenta */
+  /** DELETE /cuentas/{id} — no permite si saldo ≠ 0 */
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> eliminar(@PathVariable String id) {
-    accountService.delete(id);
-    return ResponseEntity.noContent().build();
+  public Mono<ResponseEntity<Void>> eliminar(@PathVariable String id) {
+    return service.delete(id).thenReturn(ResponseEntity.noContent().build());
   }
 }
