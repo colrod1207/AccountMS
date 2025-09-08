@@ -1,6 +1,9 @@
 package org.taller01.accountms.controller;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.validation.Valid;
+
+import java.math.BigDecimal;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -61,5 +64,21 @@ public class AccountController {
   @DeleteMapping("/{id}")
   public Mono<ResponseEntity<Void>> eliminar(@PathVariable String id) {
     return service.delete(id).thenReturn(ResponseEntity.noContent().build());
+  }
+
+  // ============================================================
+  // ENDPOINTS INTERNOS (usados por TransactionMS) — OCULTOS
+  // ============================================================
+
+  @Hidden
+  @PostMapping("/internal/{id}/deposito")
+  public Mono<AccountResponse> internalDeposit(@PathVariable String id, @RequestParam BigDecimal amount) {
+    return service.deposit(id, amount).map(AccountResponse::from);
+  }
+
+  @Hidden
+  @PostMapping("/internal/{id}/retiro")
+  public Mono<AccountResponse> internalWithdraw(@PathVariable String id, @RequestParam BigDecimal amount) {
+    return service.withdraw(id, amount).map(AccountResponse::from);
   }
 }

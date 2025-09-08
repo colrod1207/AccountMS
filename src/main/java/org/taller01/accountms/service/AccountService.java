@@ -1,6 +1,8 @@
 package org.taller01.accountms.service;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -13,14 +15,19 @@ import org.taller01.accountms.exception.ResourceNotFoundException;
 import org.taller01.accountms.repository.AccountRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 import java.math.BigDecimal;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.http.HttpStatus.*;
 
 @Service
 public class AccountService {
+
 
   private final AccountRepository repo;
   private final WebClient webClient;
@@ -115,4 +122,34 @@ public class AccountService {
             .retry(10)
             .onErrorMap(e -> new ResponseStatusException(CONFLICT, "No se pudo generar un número de cuenta único"));
   }
+
+  // ============================================================
+  // COMANDOS DE DOMINIO (usados por TransactionMS)
+  // ============================================================
+
+  public Mono<Account> deposit(String accountId, BigDecimal amount) {
+    if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+      return Mono.error(new ResponseStatusException(BAD_REQUEST, "El monto debe ser positivo"));
+    }
+    return getById(accountId).flatMap(acc -> {
+      BigDecimal current = acc.getBalance() == null ? BigDecimal.ZERO : acc.getBalance();
+      acc.setBalance(current.add(amount));
+      return repo.save(acc);
+    });
+  }
+
+  public Mono<Account> withdraw(String accountId, BigDecimal amount) {
+    if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+      return Mono.error(new ResponseStatusException(BAD_REQUEST, "El monto debe ser positivo"));
+    }
+    return getById(accountId).flatMap(acc -> {
+      BigDecimal current = acc.getBalance() == null ? BigDecimal.ZERO : acc.getBalance();
+      if (current.compareTo(amount) < 0) {
+        return Mono.error(new ResponseStatusException(HttpStatus.CONFLICT, "Saldo insuficiente"));
+      }
+      acc.setBalance(current.subtract(amount));
+      return repo.save(acc);
+    });
+  }
+
 }
