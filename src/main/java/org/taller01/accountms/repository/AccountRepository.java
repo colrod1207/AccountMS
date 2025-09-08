@@ -7,5 +7,6 @@ import reactor.core.publisher.Mono;
 
 public interface AccountRepository extends ReactiveMongoRepository<Account, String> {
   Mono<Boolean> existsByAccountNumber(String accountNumber);
+
   Flux<Account> findByClientId(String clientId);
 }
