@@ -1,4 +1,4 @@
-package org.taller01.accountms.exception;
+package org.taller01.AccountMS.exception;
 
 public class ResourceNotFoundException extends RuntimeException {
   public ResourceNotFoundException(String message) {

@@ -1,4 +1,4 @@
-package org.taller01.accountms.dto.request;
+package org.taller01.AccountMS.dto.request;
 
 import jakarta.validation.constraints.Pattern;
 

@@ -1,4 +1,4 @@
-package org.taller01.accountms.domain;
+package org.taller01.AccountMS.domain;
 
 public enum AccountType {
   SAVINGS, CHECKING

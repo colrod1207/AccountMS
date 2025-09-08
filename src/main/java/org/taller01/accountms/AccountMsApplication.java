@@ -1,4 +1,4 @@
-package org.taller01.accountms;
+package org.taller01.AccountMS;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

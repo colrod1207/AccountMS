@@ -1,12 +1,12 @@
-package org.taller01.accountms.dto.response;
+package org.taller01.AccountMS.dto.response;
+
+import java.math.BigDecimal;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.taller01.accountms.domain.Account;
-import org.taller01.accountms.domain.AccountType;
-
-import java.math.BigDecimal;
+import org.taller01.AccountMS.domain.Account;
+import org.taller01.AccountMS.domain.AccountType;
 
 @Data
 @NoArgsConstructor

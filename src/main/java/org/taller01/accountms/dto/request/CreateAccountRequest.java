@@ -1,6 +1,14 @@
-package org.taller01.accountms.dto.request;
+package org.taller01.AccountMS.dto.request;
 
-import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 
-public record CreateAccountRequest(@NotBlank String customerId,@NotBlank String number,@NotBlank String currency,@NotNull @PositiveOrZero BigDecimal initialBalance){}
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
+import org.taller01.AccountMS.domain.AccountType;
+
+public record CreateAccountRequest(@NotBlank(message="Client ID is required")String clientId,
+
+@NotNull(message="Account type is required")AccountType type,
+
+@NotNull(message="Initial balance is required")@PositiveOrZero(message="Initial balance must be zero or positive")BigDecimal initialBalance){}
