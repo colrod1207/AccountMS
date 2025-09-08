@@ -14,11 +14,15 @@ Un microservicio RESTful desarrollado con Spring Boot para la gestión de cuenta
 
 ### Diagrama de Secuencia
 
-![Diagrama de Secuencia](https://github.com/user-attachments/assets/4e1e7b9e-c8c8-4e2e-b8b6-8f2f8a7c9d1a)
+![Diagrama de Secuencia](src/diagrams/Diagrama%20de%20secuencia.png)
 
 ### Diagrama de Componentes
 
-![Diagrama de Componentes](https://github.com/user-attachments/assets/8f3e2a9b-d5c5-4e6f-a7b8-9c1d2e3f4a5b)
+![Diagrama de Componentes](src/diagrams/Diagrama%20de%20componentes.png)
+
+### Diagrama de Flujo
+
+![Diagrama de Flujo](src/diagrams/Diagrama%20de%20flujo.png)
 
 ## 🚀 Características Principales
 
