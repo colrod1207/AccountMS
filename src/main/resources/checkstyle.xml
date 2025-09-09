@@ -10,7 +10,7 @@
 	<!-- Checks que sí van dentro de TreeWalker -->
 	<module name="TreeWalker">
 		<module name="PackageName">
-			<property name="format" value="org\.taller01\.AccountMS(\..+)?" />
+			<property name="format" value="org\.taller01\.accountms(\..+)?" />
 		</module>
 
 		<module name="TypeName" />
