@@ -24,9 +24,8 @@ public class AccountController {
   /** POST /cuentas — crea cuenta (accountType: SAVINGS | CHECKING) */
   @PostMapping
   public Mono<ResponseEntity<AccountResponse>> crear(@Valid @RequestBody CreateAccountRequest req) {
-    return service.create(req)
-            .map(AccountResponse::from)
-            .map(a -> ResponseEntity.created(URI.create("/cuentas/" + a.getId())).body(a));
+    return service.create(req).map(AccountResponse::from)
+        .map(a -> ResponseEntity.created(URI.create("/cuentas/" + a.getId())).body(a));
   }
 
   /** GET /cuentas — listar todas */
@@ -49,13 +48,15 @@ public class AccountController {
 
   /** PUT /cuentas/{id} — actualizar 'active' (obligatorio) */
   @PutMapping("/{id}")
-  public Mono<AccountResponse> actualizar(@PathVariable String id, @Valid @RequestBody UpdateAccountRequest req) {
+  public Mono<AccountResponse> actualizar(@PathVariable String id,
+      @Valid @RequestBody UpdateAccountRequest req) {
     return service.updatePut(id, req).map(AccountResponse::from);
   }
 
   /** PATCH /cuentas/{id} — actualización parcial (active opcional) */
   @PatchMapping("/{id}")
-  public Mono<AccountResponse> actualizarParcial(@PathVariable String id, @RequestBody UpdateAccountRequest req) {
+  public Mono<AccountResponse> actualizarParcial(@PathVariable String id,
+      @RequestBody UpdateAccountRequest req) {
     return service.updatePatch(id, req).map(AccountResponse::from);
   }
 
@@ -71,13 +72,15 @@ public class AccountController {
 
   @Hidden
   @PostMapping("/internal/{id}/deposito")
-  public Mono<AccountResponse> internalDeposit(@PathVariable String id, @RequestParam BigDecimal amount) {
+  public Mono<AccountResponse> internalDeposit(@PathVariable String id,
+      @RequestParam BigDecimal amount) {
     return service.deposit(id, amount).map(AccountResponse::from);
   }
 
   @Hidden
   @PostMapping("/internal/{id}/retiro")
-  public Mono<AccountResponse> internalWithdraw(@PathVariable String id, @RequestParam BigDecimal amount) {
+  public Mono<AccountResponse> internalWithdraw(@PathVariable String id,
+      @RequestParam BigDecimal amount) {
     return service.withdraw(id, amount).map(AccountResponse::from);
   }
 }
