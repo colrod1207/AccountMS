@@ -27,13 +27,13 @@
         <maven.surefire.version>3.2.5</maven.surefire.version>
         <checkstyle.plugin.version>3.5.0</checkstyle.plugin.version>
 
-        <!-- Overrides para reducir avisos -->
+        <!-- Overrides para minimizar alertas de vulnerabilidad en transitivos -->
         <spring-framework.version>6.1.16</spring-framework.version>
         <commons-lang3.version>3.17.0</commons-lang3.version>
         <json-smart.version>2.5.2</json-smart.version>
     </properties>
 
-    <!-- Fijamos versiones de transitivos que a veces marcan los analizadores -->
+    <!-- Fijar versiones de algunos transitivos que suelen marcar los analizadores -->
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -60,7 +60,7 @@
     </dependencyManagement>
 
     <dependencies>
-        <!-- Web MVC (quitamos Tomcat y Logback) -->
+        <!-- Web MVC (sin Tomcat y sin Logback) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -76,7 +76,7 @@
             </exclusions>
         </dependency>
 
-        <!-- Undertow (servidor embebido) -->
+        <!-- Undertow como servidor embebido -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-undertow</artifactId>
@@ -88,31 +88,31 @@
             <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>
 
-        <!-- Bean Validation -->
+        <!-- Validación -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!-- Persistencia: MongoDB (cambia por JPA/MySQL si usas SQL) -->
+        <!-- Persistencia: MongoDB (cámbialo a JPA/MySQL si lo necesitas) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
 
-        <!-- WebClient (stack reactivo de cliente) -->
+        <!-- WebClient (stack reactivo) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
 
-        <!-- Reactor core (si usas Mono/Flux) -->
+        <!-- Reactor core (Mono/Flux) -->
         <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-core</artifactId>
         </dependency>
 
-        <!-- OpenAPI / Swagger UI -->
+        <!-- OpenAPI/Swagger UI -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
@@ -127,12 +127,13 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Test (exclusiones para evitar avisos comunes) -->
+        <!-- Tests -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
             <exclusions>
+                <!-- Estos suelen disparar avisos; no son necesarios en la mayoría de casos -->
                 <exclusion>
                     <groupId>com.jayway.jsonpath</groupId>
                     <artifactId>json-path</artifactId>
@@ -146,6 +147,11 @@
                     <artifactId>xmlunit-core</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-test</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
@@ -228,7 +234,7 @@
                 </executions>
             </plugin>
 
-            <!-- Checkstyle (apunta al archivo en la raíz del proyecto) -->
+            <!-- Checkstyle -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
@@ -247,7 +253,7 @@
                 </executions>
             </plugin>
 
-            <!-- Enforcer: asegurar Java 17 -->
+            <!-- Enforcer: exigir Java 17 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -269,7 +275,7 @@
         </plugins>
     </build>
 
-    <!-- Perfil rápido opcional -->
+    <!-- Perfil rápido para desarrollo local -->
     <profiles>
         <profile>
             <id>fast</id>
@@ -295,3 +301,4 @@
         </profile>
     </profiles>
 </project>
+
