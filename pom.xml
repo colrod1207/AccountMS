@@ -18,22 +18,26 @@
     <description>Microservicio de cuentas (AccountMS) - Bootcamp</description>
 
     <properties>
+        <!-- Java 17 -->
         <java.version>17</java.version>
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <!-- Libs/Plugins -->
         <springdoc.version>2.6.0</springdoc.version>
         <jacoco.version>0.8.12</jacoco.version>
         <maven.surefire.version>3.2.5</maven.surefire.version>
         <checkstyle.plugin.version>3.5.0</checkstyle.plugin.version>
+        <maven.compiler.plugin.version>3.11.0</maven.compiler.plugin.version>
+        <maven.enforcer.version>3.5.0</maven.enforcer.version>
 
-        <!-- Overrides para minimizar alertas de vulnerabilidad en transitivos -->
+        <!-- Overrides para reducir alertas de CVEs en transitivos -->
         <spring-framework.version>6.1.16</spring-framework.version>
         <commons-lang3.version>3.17.0</commons-lang3.version>
         <json-smart.version>2.5.2</json-smart.version>
     </properties>
 
-    <!-- Fijar versiones de algunos transitivos que suelen marcar los analizadores -->
+    <!-- Fija versiones de algunos transitivos que suelen marcar alertas -->
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -60,7 +64,7 @@
     </dependencyManagement>
 
     <dependencies>
-        <!-- Web MVC (sin Tomcat y sin Logback) -->
+        <!-- Web MVC (sin Tomcat ni Logback) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -94,7 +98,7 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!-- Persistencia: MongoDB (cámbialo a JPA/MySQL si lo necesitas) -->
+        <!-- Persistencia (MongoDB). Cambia a JPA/MySQL si corresponde. -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
@@ -133,7 +137,7 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
             <exclusions>
-                <!-- Estos suelen disparar avisos; no son necesarios en la mayoría de casos -->
+                <!-- Estos suelen activar avisos y no son críticos para este proyecto -->
                 <exclusion>
                     <groupId>com.jayway.jsonpath</groupId>
                     <artifactId>json-path</artifactId>
@@ -162,6 +166,7 @@
 
     <build>
         <plugins>
+            <!-- Spring Boot -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -171,7 +176,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <version>${maven.compiler.plugin.version}</version>
                 <configuration>
                     <release>${maven.compiler.release}</release>
                     <annotationProcessorPaths>
@@ -194,23 +199,29 @@
                 </configuration>
             </plugin>
 
-            <!-- JaCoCo -->
+            <!-- JaCoCo (reporte HTML + chequeo de umbrales) -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>${jacoco.version}</version>
                 <executions>
                     <execution>
-                        <goals><goal>prepare-agent</goal></goals>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
                     </execution>
                     <execution>
                         <id>report</id>
                         <phase>test</phase>
-                        <goals><goal>report</goal></goals>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
                     </execution>
                     <execution>
                         <id>check</id>
-                        <goals><goal>check</goal></goals>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
                         <configuration>
                             <rules>
                                 <rule>
@@ -234,7 +245,7 @@
                 </executions>
             </plugin>
 
-            <!-- Checkstyle -->
+            <!-- Checkstyle (genera HTML en target/site/checkstyle.html) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
@@ -243,25 +254,32 @@
                     <configLocation>${project.basedir}/checkstyle.xml</configLocation>
                     <consoleOutput>true</consoleOutput>
                     <failOnViolation>false</failOnViolation>
+                    <outputFile>${project.build.directory}/site/checkstyle.html</outputFile>
+                    <outputFileFormat>html</outputFileFormat>
+                    <linkXRef>false</linkXRef>
                 </configuration>
                 <executions>
                     <execution>
                         <id>checkstyle</id>
                         <phase>verify</phase>
-                        <goals><goal>checkstyle</goal></goals>
+                        <goals>
+                            <goal>checkstyle</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
 
-            <!-- Enforcer: exigir Java 17 -->
+            <!-- Enforcer: exigir Java 17 en la ejecución de Maven -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.5.0</version>
+                <version>${maven.enforcer.version}</version>
                 <executions>
                     <execution>
                         <id>enforce-java</id>
-                        <goals><goal>enforce</goal></goals>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
                         <configuration>
                             <rules>
                                 <requireJavaVersion>
@@ -275,25 +293,33 @@
         </plugins>
     </build>
 
-    <!-- Perfil rápido para desarrollo local -->
+    <!-- Perfil rápido para desarrollo local (omite checks pesados) -->
     <profiles>
         <profile>
             <id>fast</id>
-            <activation><activeByDefault>false</activeByDefault></activation>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
                         <executions>
-                            <execution><id>check</id><phase>none</phase></execution>
+                            <execution>
+                                <id>check</id>
+                                <phase>none</phase>
+                            </execution>
                         </executions>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-checkstyle-plugin</artifactId>
                         <executions>
-                            <execution><id>checkstyle</id><phase>none</phase></execution>
+                            <execution>
+                                <id>checkstyle</id>
+                                <phase>none</phase>
+                            </execution>
                         </executions>
                     </plugin>
                 </plugins>
@@ -301,4 +327,3 @@
         </profile>
     </profiles>
 </project>
-
