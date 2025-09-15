@@ -146,8 +146,4 @@ com.yourorg.accountms
 
 ---
 
-## 8️⃣ Autoras
-- Antonella Hermayoni Carrasco Aguilar
-- Rosario Katrina García Yallico
 
-¡Éxitos con la entrega! 🚀
